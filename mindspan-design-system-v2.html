@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mindspan — Design System v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* ground — cool porcelain, not cream, not white */
+  --paper:#EFF0F6;
+  --card:#FFFFFF;
+  --line:#E3E5F0;
+  --line-soft:#EDEEF5;
+
+  /* ink — deep indigo, never pure black */
+  --ink:#14162B;
+  --ink-2:#4A4F6B;
+  --ink-3:#8189A6;
+
+  /* focus mode */
+  --focus:#14162B;
+  --focus-2:#1F2240;
+  --focus-line:#2E3252;
+  --focus-ink:#F4F5FA;
+  --focus-ink-2:#A8AFCC;
+  --stim:#FFB238;
+
+  /* domain fills */
+  --mem:#6355E0;  --att:#E08A00;  --verb:#0E9384;
+  --reas:#1D6FE0; --spd:#E1483C;  --flex:#C4359C;
+  /* domain text (contrast-safe) */
+  --mem-t:#4F3FC9; --att-t:#A85C00; --verb-t:#076B60;
+  --reas-t:#1A5FC4; --spd-t:#C13126; --flex-t:#AF2C8A;
+
+  --sans:'Instrument Sans',system-ui,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,monospace;
+
+  --r-sm:8px; --r-md:16px; --r-lg:24px; --r-pill:999px;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:var(--sans);font-size:16.5px;line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+.page{max-width:1080px;margin:0 auto;padding:0 clamp(20px,5vw,48px)}
+
+h1,h2,h3{font-weight:600;letter-spacing:-.028em;line-height:1.08;margin:0}
+h1{font-size:clamp(40px,6.2vw,62px);letter-spacing:-.04em}
+h2{font-size:clamp(27px,3.4vw,36px)}
+h3{font-size:18px;letter-spacing:-.015em;font-weight:600}
+
+p{margin:0}
+.lead{font-size:clamp(17px,2vw,19.5px);color:var(--ink-2);max-width:56ch;line-height:1.55}
+.body{color:var(--ink-2);max-width:62ch;font-size:16px}
+.small{font-size:14.5px;color:var(--ink-2);line-height:1.55}
+.mono{font-family:var(--mono);font-size:12px;letter-spacing:.02em;color:var(--ink-3)}
+
+.band{padding:clamp(56px,8vw,100px) 0;border-top:1px solid var(--line)}
+.band-head{max-width:56ch;margin-bottom:clamp(32px,4.5vw,52px)}
+.band-head h2+p{margin-top:16px}
+
+.grid{display:grid;gap:16px}
+@media(min-width:720px){
+  .g2{grid-template-columns:1fr 1fr}
+  .g3{grid-template-columns:repeat(3,1fr)}
+}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-md);padding:24px}
+.card h3+p{margin-top:8px}
+
+/* ── hero ── */
+.hero{padding:clamp(56px,8vw,104px) 0 clamp(40px,5vw,64px)}
+.hero .tag{
+  display:inline-block;font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;
+  color:var(--ink-2);background:var(--card);border:1px solid var(--line);
+  border-radius:var(--r-pill);padding:7px 15px;margin-bottom:26px;
+}
+.hero p.lead{margin-top:26px}
+
+.changed{
+  margin-top:38px;background:var(--card);border:1px solid var(--line);
+  border-radius:var(--r-md);padding:26px 28px;max-width:64ch;
+}
+.changed h3{margin-bottom:16px}
+.changed ul{margin:0;padding:0;list-style:none;display:grid;gap:12px}
+.changed li{padding-left:26px;position:relative;font-size:15.5px;color:var(--ink-2);line-height:1.5}
+.changed li::before{
+  content:'';position:absolute;left:0;top:.52em;width:11px;height:11px;
+  border-radius:3px;background:var(--paper);border:1px solid var(--line);
+}
+.changed li b{color:var(--ink);font-weight:600}
+
+/* ── colour ── */
+.grounds{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:12px}
+.gr{border-radius:var(--r-sm);overflow:hidden;border:1px solid var(--line);background:var(--card)}
+.gr .sw{height:76px;display:block}
+.gr .mt{padding:11px 13px 13px}
+.gr .n{font-size:13.5px;font-weight:600;display:block}
+.gr .h{font-family:var(--mono);font-size:11px;color:var(--ink-3);display:block;margin-top:2px}
+
+.doms{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:12px}
+.dm{background:var(--card);border:1px solid var(--line);border-radius:var(--r-md);padding:18px;position:relative}
+.dm .bar{height:6px;width:44px;border-radius:3px;background:var(--f);display:block;margin-bottom:15px}
+.dm .n{font-size:14.5px;font-weight:600;display:block;letter-spacing:-.01em}
+.dm .h{font-family:var(--mono);font-size:10.5px;color:var(--ink-3);display:block;margin-top:5px;line-height:1.6}
+.dm .h b{color:var(--t);font-weight:500}
+
+/* ── type ── */
+.trow{display:grid;gap:14px;padding:28px 0;border-top:1px solid var(--line)}
+@media(min-width:760px){.trow{grid-template-columns:158px 1fr;gap:32px;align-items:baseline}}
+.trow .meta .r{font-size:14px;font-weight:600;display:block}
+.trow .meta .u{font-size:13.5px;color:var(--ink-3);display:block;margin-top:5px;line-height:1.5}
+.sp-lg{font-size:clamp(30px,4.4vw,42px);font-weight:600;letter-spacing:-.038em;line-height:1.06}
+.sp-md{font-size:18.5px;color:var(--ink-2);line-height:1.55;max-width:46ch}
+.sp-mono{font-family:var(--mono);font-size:15px;color:var(--ink-2);letter-spacing:.01em}
+.scale{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.scale i{
+  font-family:var(--mono);font-style:normal;font-size:11px;color:var(--ink-3);
+  background:var(--card);border:1px solid var(--line);border-radius:var(--r-pill);padding:5px 11px;
+}
+
+/* ── readout signature ── */
+.ro{display:flex;flex-direction:column;gap:14px}
+.ro .lb{font-size:13.5px;font-weight:500;color:var(--ink-2)}
+.ro .top{display:flex;align-items:baseline;gap:9px}
+.ro .num{
+  font-size:62px;font-weight:600;letter-spacing:-.05em;line-height:.9;
+  font-variant-numeric:tabular-nums;color:var(--ink);
+}
+.ro .un{font-family:var(--mono);font-size:12px;color:var(--ink-3)}
+
+.bb{position:relative;height:30px}
+.bb .tk{position:absolute;top:13px;left:0;right:0;height:2px;background:var(--line);border-radius:2px}
+.bb .rg{position:absolute;top:9px;height:10px;border-radius:5px;background:var(--f);opacity:.24}
+.bb .pt{position:absolute;top:6px;width:3px;height:16px;border-radius:2px;background:var(--f)}
+.bb .cp{position:absolute;top:20px;font-family:var(--mono);font-size:10px;color:var(--ink-3)}
+
+.cf{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink-2)}
+.cf b{display:flex;gap:3px}
+.cf i{width:15px;height:3px;border-radius:2px;background:var(--line);display:block}
+.cf i.f{background:var(--f)}
+
+/* ── components ── */
+.btn{
+  font-family:var(--sans);font-size:15px;font-weight:600;letter-spacing:-.005em;
+  border:0;border-radius:var(--r-pill);padding:14px 26px;cursor:pointer;
+  background:var(--ink);color:var(--card);
+  transition:transform 140ms cubic-bezier(.34,1.56,.64,1),opacity 140ms linear;
+}
+.btn:hover{opacity:.88}
+.btn:active{transform:scale(.965)}
+.btn:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+.btn.sec{background:var(--card);color:var(--ink);border:1px solid var(--line)}
+.btn.qui{background:transparent;color:var(--ink-2);padding-left:0;padding-right:0}
+.btn.sm{font-size:13.5px;padding:10px 19px}
+
+.chip{
+  display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:500;
+  border-radius:var(--r-pill);padding:6px 13px 6px 10px;
+  background:var(--card);border:1px solid var(--line);color:var(--t);
+}
+.chip .d{width:8px;height:8px;border-radius:50%;background:var(--f)}
+
+.drow{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--line-soft)}
+.drow:last-child{border-bottom:0}
+.drow .k{width:5px;height:22px;border-radius:3px;background:var(--f);flex:none}
+.drow .n{flex:1;font-size:15px;font-weight:500}
+.drow .t{flex:0 0 84px;height:5px;border-radius:3px;background:var(--line);overflow:hidden}
+.drow .t span{display:block;height:100%;background:var(--f);border-radius:3px}
+.drow .v{font-family:var(--mono);font-size:12.5px;color:var(--ink-2);width:32px;text-align:right}
+
+/* ── focus mode showcase ── */
+.fm{background:var(--focus);border-radius:var(--r-lg);padding:clamp(28px,5vw,52px);color:var(--focus-ink)}
+.fm h2{color:var(--focus-ink)}
+.fm p{color:var(--focus-ink-2);max-width:56ch}
+.fm .stims{display:flex;gap:20px;align-items:center;flex-wrap:wrap;margin-top:32px}
+.fm .st{width:82px;height:82px}
+.fm .st.go{background:var(--stim);border-radius:50%;box-shadow:0 0 44px -4px rgba(255,178,56,.55)}
+.fm .st.stop{background:#3FCFA3;border-radius:12px}
+.fm .cap{font-family:var(--mono);font-size:11.5px;color:var(--focus-ink-2);margin-top:14px}
+
+/* ── phones ── */
+.phones{display:grid;gap:30px;justify-items:center;grid-template-columns:1fr}
+@media(min-width:780px){.phones{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:1000px){.phones{grid-template-columns:repeat(4,1fr);gap:18px}}
+.pw{width:100%;max-width:280px}
+.phone{
+  background:var(--card);border:1px solid var(--line);border-radius:32px;padding:9px;
+  box-shadow:0 20px 44px -26px rgba(20,22,43,.4);
+}
+.scr{background:var(--paper);border-radius:24px;overflow:hidden;min-height:520px;display:flex;flex-direction:column}
+.scr.dark{background:var(--focus)}
+.sb{display:flex;justify-content:space-between;padding:12px 17px 6px;font-family:var(--mono);font-size:9.5px;color:var(--ink-3)}
+.scr.dark .sb{color:var(--focus-ink-2)}
+.sc{padding:8px 15px 14px;flex:1;display:flex;flex-direction:column;gap:12px}
+.pcap{font-size:13px;color:var(--ink-3);text-align:center;margin-top:13px}
+
+.sh{font-size:21px;font-weight:600;letter-spacing:-.032em;line-height:1.1}
+.ss{font-size:12.5px;color:var(--ink-3)}
+
+.pc{background:var(--card);border:1px solid var(--line);border-radius:var(--r-md);padding:16px}
+.pc .ph{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
+.pc .pt{font-size:12.5px;color:var(--ink-2);font-weight:500}
+.pc .pv{font-family:var(--mono);font-size:12px;color:var(--ink-3)}
+
+.wk{display:flex;gap:5px}
+.wk i{
+  flex:1;height:34px;border-radius:8px;background:var(--paper);border:1px solid var(--line);
+  display:flex;align-items:center;justify-content:center;font-style:normal;
+  font-family:var(--mono);font-size:10px;color:var(--ink-3);
+}
+.wk i.on{background:var(--ink);border-color:var(--ink);color:var(--card)}
+.wk i.now{border-color:var(--ink);border-width:1.5px;color:var(--ink);font-weight:500}
+
+.tabs{display:flex;border-top:1px solid var(--line);background:var(--card);padding:10px 4px 13px;margin-top:auto}
+.tabs a{flex:1;text-align:center;text-decoration:none;font-size:9.5px;color:var(--ink-3);letter-spacing:.01em}
+.tabs a.on{color:var(--ink);font-weight:600}
+.tabs a b{display:block;width:16px;height:16px;border-radius:5px;background:currentColor;opacity:.35;margin:0 auto 5px}
+.tabs a.on b{opacity:1}
+
+/* dark screen bits */
+.scr.dark .sh{color:var(--focus-ink)}
+.dstim{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px}
+.dstim .o{width:96px;height:96px;border-radius:50%;background:var(--stim);box-shadow:0 0 52px -6px rgba(255,178,56,.6)}
+.dstim .lbl{font-family:var(--mono);font-size:11px;color:var(--focus-ink-2);letter-spacing:.06em}
+.dprog{display:flex;gap:3px;padding:0 2px}
+.dprog i{flex:1;height:3px;border-radius:2px;background:var(--focus-line)}
+.dprog i.d{background:var(--stim)}
+
+/* do/dont */
+.dd{display:grid;gap:16px}
+@media(min-width:720px){.dd{grid-template-columns:1fr 1fr}}
+.dd .s{background:var(--card);border:1px solid var(--line);border-radius:var(--r-md);padding:26px}
+.dd h3{margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--line-soft)}
+.dd ul{margin:0;padding:0;list-style:none;display:grid;gap:12px}
+.dd li{font-size:15px;color:var(--ink-2);padding-left:20px;position:relative;line-height:1.5}
+.dd li::before{content:'';position:absolute;left:0;top:.68em;width:9px;height:1.5px;border-radius:1px;background:var(--ink-3)}
+
+footer{border-top:1px solid var(--line);padding:36px 0 60px}
+footer p{font-size:13.5px;color:var(--ink-3)}
+
+@media(prefers-reduced-motion:reduce){*{transition-duration:.001ms!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<div class="page hero">
+  <span class="tag">Design system v2 — replaces the dark version</span>
+  <h1>Clear ground.<br>Colour means something.</h1>
+  <p class="lead">The app lives on cool porcelain — not black, not stark white. Cards sit on it as pure white, so depth comes from the tint rather than shadows and gradients. Then the whole thing inverts the moment a timed task begins.</p>
+
+  <div class="changed">
+    <h3>What I cut, and why</h3>
+    <ul>
+      <li><b>The near-black ground.</b> You called it right — dark background plus one bright accent is the most common AI-design default going. It also fought the audience: 35–65 year olds reading small numbers do better on light.</li>
+      <li><b>Coloured primary buttons.</b> Now the primary action is ink. Colour is reserved <em>entirely</em> for the six domains, so any colour on screen carries meaning.</li>
+      <li><b>The third typeface.</b> Two families, not three. Fewer moving parts reads cleaner.</li>
+      <li><b>Uppercase mono labels on every section.</b> That tic was doing most of the work in making it feel machine-made. Mono now appears only where there are actual numbers.</li>
+      <li><b>Numbered section markers.</b> The sections aren't a sequence, so numbering them was decoration pretending to be structure.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- GROUND -->
+<section class="page band">
+  <div class="band-head">
+    <h2>The ground</h2>
+    <p class="body">Porcelain has a faint blue-violet cast. It's the difference between a surface that looks considered and one that looks like an unstyled default — and it stops the page reading as cream, which is its own overused look.</p>
+  </div>
+
+  <div class="grounds">
+    <div class="gr"><span class="sw" style="background:#EFF0F6"></span><span class="mt"><span class="n">Paper</span><span class="h">#EFF0F6 · app ground</span></span></div>
+    <div class="gr"><span class="sw" style="background:#FFFFFF;border-bottom:1px solid #E3E5F0"></span><span class="mt"><span class="n">Card</span><span class="h">#FFFFFF · surfaces</span></span></div>
+    <div class="gr"><span class="sw" style="background:#E3E5F0"></span><span class="mt"><span class="n">Line</span><span class="h">#E3E5F0 · borders</span></span></div>
+    <div class="gr"><span class="sw" style="background:#8189A6"></span><span class="mt"><span class="n">Ink 3</span><span class="h">#8189A6 · captions</span></span></div>
+    <div class="gr"><span class="sw" style="background:#4A4F6B"></span><span class="mt"><span class="n">Ink 2</span><span class="h">#4A4F6B · secondary</span></span></div>
+    <div class="gr"><span class="sw" style="background:#14162B"></span><span class="mt"><span class="n">Ink</span><span class="h">#14162B · text, buttons</span></span></div>
+  </div>
+  <p class="small" style="margin-top:20px;max-width:62ch">Ink is deep indigo rather than black. On a light ground pure black looks like a printing error; a blue-shifted near-black looks intentional and is easier to read for longer.</p>
+</section>
+
+<!-- DOMAINS -->
+<section class="page band">
+  <div class="band-head">
+    <h2>Six hues, one per domain</h2>
+    <p class="body">Your favourites survive, retuned for a light background. Each has two values: a vivid one for fills and bars, and a deeper one for coloured text. Both clear contrast requirements — the vivid ones as graphics, the deep ones as text.</p>
+  </div>
+
+  <div class="doms">
+    <div class="dm" style="--f:var(--mem);--t:var(--mem-t)"><span class="bar"></span><span class="n">Working memory</span><span class="h">#6355E0 fill<br><b>#4F3FC9 text</b></span></div>
+    <div class="dm" style="--f:var(--att);--t:var(--att-t)"><span class="bar"></span><span class="n">Attention</span><span class="h">#E08A00 fill<br><b>#A85C00 text</b></span></div>
+    <div class="dm" style="--f:var(--verb);--t:var(--verb-t)"><span class="bar"></span><span class="n">Verbal retrieval</span><span class="h">#0E9384 fill<br><b>#076B60 text</b></span></div>
+    <div class="dm" style="--f:var(--reas);--t:var(--reas-t)"><span class="bar"></span><span class="n">Reasoning</span><span class="h">#1D6FE0 fill<br><b>#1A5FC4 text</b></span></div>
+    <div class="dm" style="--f:var(--spd);--t:var(--spd-t)"><span class="bar"></span><span class="n">Processing speed</span><span class="h">#E1483C fill<br><b>#C13126 text</b></span></div>
+    <div class="dm" style="--f:var(--flex);--t:var(--flex-t)"><span class="bar"></span><span class="n">Flexibility</span><span class="h">#C4359C fill<br><b>#AF2C8A text</b></span></div>
+  </div>
+
+  <div class="grid g2" style="margin-top:24px">
+    <div class="card">
+      <h3>The rule that keeps it clean</h3>
+      <p class="small">Colour is only ever a domain. Buttons are ink, states are ink, chrome is ink. So when something on screen is violet, it means working memory — every time, with no exceptions to remember.</p>
+    </div>
+    <div class="card">
+      <h3>Why amber isn't the brand colour any more</h3>
+      <p class="small">Amber can't hold contrast on a light ground without turning brown. Rather than compromise it, amber moves to where it's genuinely brilliant: the stimulus colour in focus mode, at nearly 10:1 against dark.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOCUS MODE — the signature -->
+<section class="page band">
+  <div class="band-head">
+    <h2>The signature: the room dims</h2>
+    <p class="body">The app is calm and light all day. Tap <em>Start</em> and the screen inverts to deep indigo, everything but the task disappears, and the stimulus glows amber. It's memorable — and unlike most signature moments, it's doing real work.</p>
+  </div>
+
+  <div class="fm">
+    <h2 style="font-size:clamp(24px,3vw,32px)">Focus mode</h2>
+    <p style="margin-top:14px">Dark ground gives the stimulus maximum contrast, which the measurement depends on. It removes every competing element from view. And it tells the user, without a word of copy, that this part counts.</p>
+    <div class="stims">
+      <span class="st go"></span>
+      <span class="st stop"></span>
+      <div>
+        <p style="margin:0;font-size:15px;color:var(--focus-ink)">Circle to respond, square to withhold.</p>
+        <p class="cap">Shape carries the meaning alongside colour, so the task stays valid for colour-blind users.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TYPE -->
+<section class="page band">
+  <div class="band-head">
+    <h2>Two typefaces</h2>
+    <p class="body">Instrument Sans for everything a person reads. IBM Plex Mono only where there are literal numbers — units, timers, milliseconds. When mono shows up, it means data.</p>
+  </div>
+
+  <div class="trow">
+    <div class="meta"><span class="r">Instrument Sans</span><span class="u">Headings, body, buttons, labels. Slightly narrow, quietly characterful, not yet everywhere.</span></div>
+    <div>
+      <p class="sp-lg">Your focus held steady all week.</p>
+      <div class="scale"><i>Display 62 / 600</i><i>Title 21 / 600</i><i>Heading 18 / 600</i><i>Body 16.5 / 400</i><i>Small 14.5 / 400</i></div>
+    </div>
+  </div>
+
+  <div class="trow">
+    <div class="meta"><span class="r">Instrument Sans</span><span class="u">Insight text sits at a larger size in ink-2. A different voice through size and colour, not a different family.</span></div>
+    <div><p class="sp-md">Your accuracy was strong, but it declined as the number of items increased. The next two weeks focus on holding information under distraction.</p></div>
+  </div>
+
+  <div class="trow">
+    <div class="meta"><span class="r">IBM Plex Mono</span><span class="u">Numbers only. Always tabular figures so values don't jitter as they update.</span></div>
+    <div>
+      <p class="sp-mono">412 ms · 68th percentile · session 14</p>
+      <div class="scale"><i>Data 12 / 400</i><i>Unit 11 / 500</i><i>Caption 10 / 400</i></div>
+    </div>
+  </div>
+</section>
+
+<!-- READOUT -->
+<section class="page band">
+  <div class="band-head">
+    <h2>Every score is a range</h2>
+    <p class="body">The component that carries your integrity rule. A number, the range around it, and a confidence meter — so no one can ship a bare figure. Numerals are ink, not coloured; the range bar carries the domain hue.</p>
+  </div>
+
+  <div class="grid g3">
+    <div class="card" style="--f:var(--att)">
+      <div class="ro">
+        <span class="lb">Cognitive Performance Age</span>
+        <div class="top"><span class="num" data-count="44">44</span><span class="un">range 41–47</span></div>
+        <div class="bb" id="b1"></div>
+        <span class="cf"><b><i class="f"></i><i class="f"></i><i></i></b> Moderate confidence</span>
+      </div>
+    </div>
+    <div class="card" style="--f:var(--mem)">
+      <div class="ro">
+        <span class="lb">Working memory</span>
+        <div class="top"><span class="num" data-count="62">62</span><span class="un">percentile</span></div>
+        <div class="bb" id="b2"></div>
+        <span class="cf"><b><i class="f"></i><i class="f"></i><i class="f"></i></b> High confidence</span>
+      </div>
+    </div>
+    <div class="card" style="--f:var(--spd)">
+      <div class="ro">
+        <span class="lb">Mean response</span>
+        <div class="top"><span class="num" data-count="412">412</span><span class="un">ms</span></div>
+        <div class="bb" id="b3"></div>
+        <span class="cf"><b><i class="f"></i><i></i><i></i></b> Low confidence</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPONENTS -->
+<section class="page band">
+  <div class="band-head">
+    <h2>The kit</h2>
+    <p class="body">Radius by role: 8px for data, 16px for cards, 24px for sheets, pill for anything tappable.</p>
+  </div>
+
+  <div class="grid g2">
+    <div class="card">
+      <h3>Buttons</h3>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:16px">
+        <button class="btn">Start workout</button>
+        <button class="btn sec">Skip today</button>
+        <button class="btn qui sm">Methodology</button>
+      </div>
+      <p class="small" style="margin-top:16px">Ink primary, white secondary, bare tertiary. One primary per screen.</p>
+    </div>
+
+    <div class="card">
+      <h3>Domain chips</h3>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:16px">
+        <span class="chip" style="--f:var(--mem);--t:var(--mem-t)"><span class="d"></span>Memory</span>
+        <span class="chip" style="--f:var(--verb);--t:var(--verb-t)"><span class="d"></span>Verbal</span>
+        <span class="chip" style="--f:var(--reas);--t:var(--reas-t)"><span class="d"></span>Reasoning</span>
+        <span class="chip" style="--f:var(--flex);--t:var(--flex-t)"><span class="d"></span>Flexibility</span>
+      </div>
+      <p class="small" style="margin-top:16px">White ground, hairline border, coloured dot and label. No tinted fills — they muddy on porcelain.</p>
+    </div>
+
+    <div class="card">
+      <h3>Domain rows</h3>
+      <div style="margin-top:12px">
+        <div class="drow" style="--f:var(--spd)"><span class="k"></span><span class="n">Processing speed</span><span class="t"><span style="width:82%"></span></span><span class="v">82</span></div>
+        <div class="drow" style="--f:var(--mem)"><span class="k"></span><span class="n">Working memory</span><span class="t"><span style="width:61%"></span></span><span class="v">61</span></div>
+        <div class="drow" style="--f:var(--att)"><span class="k"></span><span class="n">Attention</span><span class="t"><span style="width:44%"></span></span><span class="v">44</span></div>
+        <div class="drow" style="--f:var(--verb)"><span class="k"></span><span class="n">Verbal retrieval</span><span class="t"><span style="width:38%"></span></span><span class="v">38</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Motion</h3>
+      <p class="small" style="margin-top:12px">Taps spring to 0.965 and back over 140ms. Scores count up in 680ms. Trend lines draw left to right in 380ms. Screen changes slide 12px with a fade.</p>
+      <p class="small" style="margin-top:12px"><strong style="color:var(--ink)">The hard rule:</strong> during a timed trial nothing animates but the stimulus, and the stimulus appears with zero transition. Easing on onset corrupts the reaction-time measurement.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SCREENS -->
+<section class="page band">
+  <div class="band-head">
+    <h2>Assembled</h2>
+    <p class="body">Three light screens and the moment they invert.</p>
+  </div>
+
+  <div class="phones">
+    <!-- today -->
+    <div class="pw">
+      <div class="phone"><div class="scr">
+        <div class="sb"><span>9:41</span><span>▁▃▅</span></div>
+        <div class="sc">
+          <div><p class="ss">Thursday · day 23</p><p class="sh" style="margin-top:3px">Morning, Alex.</p></div>
+          <div class="pc">
+            <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px">
+              <span class="chip" style="--f:var(--verb);--t:var(--verb-t);font-size:11.5px;padding:4px 10px 4px 8px"><span class="d" style="width:6px;height:6px"></span>Verbal</span>
+              <span class="chip" style="--f:var(--att);--t:var(--att-t);font-size:11.5px;padding:4px 10px 4px 8px"><span class="d" style="width:6px;height:6px"></span>Focus</span>
+            </div>
+            <p style="font-size:19px;font-weight:600;letter-spacing:-.03em">Today's workout</p>
+            <p style="font-family:var(--mono);font-size:11.5px;color:var(--ink-3);margin-top:5px">5 min · 3 exercises</p>
+            <button class="btn" style="width:100%;margin-top:15px">Start</button>
+          </div>
+          <div class="pc">
+            <div class="ph"><span class="pt">This week</span><span class="pv">4 of 5</span></div>
+            <div class="wk"><i class="on">M</i><i class="on">T</i><i class="on">W</i><i class="now">T</i><i>F</i><i>S</i><i>S</i></div>
+          </div>
+          <div class="pc" style="--f:var(--att)">
+            <div class="ph"><span class="pt">Performance age</span></div>
+            <div class="ro" style="gap:10px">
+              <div class="top"><span class="num" style="font-size:40px">44</span><span class="un">41–47</span></div>
+              <div class="bb" id="b4"></div>
+            </div>
+          </div>
+        </div>
+        <nav class="tabs"><a class="on" href="#"><b></b>Today</a><a href="#"><b></b>Progress</a><a href="#"><b></b>Plan</a><a href="#"><b></b>Profile</a></nav>
+      </div></div>
+      <p class="pcap">Today</p>
+    </div>
+
+    <!-- focus -->
+    <div class="pw">
+      <div class="phone"><div class="scr dark">
+        <div class="sb"><span>9:42</span><span>▁▃▅</span></div>
+        <div class="sc">
+          <div class="dprog"><i class="d"></i><i class="d"></i><i class="d"></i><i class="d"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="dstim">
+            <span class="o"></span>
+            <span class="lbl">tap now</span>
+          </div>
+        </div>
+      </div></div>
+      <p class="pcap">Focus mode — everything else gone</p>
+    </div>
+
+    <!-- result -->
+    <div class="pw">
+      <div class="phone"><div class="scr">
+        <div class="sb"><span>9:46</span><span>▁▃▅</span></div>
+        <div class="sc">
+          <p class="ss">Assessment complete</p>
+          <div class="pc" style="--f:var(--att);text-align:center">
+            <div class="ro" style="align-items:center">
+              <span class="lb">Cognitive Performance Age</span>
+              <div class="top" style="justify-content:center"><span class="num" data-count="44">44</span></div>
+              <div class="bb" id="b5" style="width:100%"></div>
+              <span class="cf">Moderate confidence</span>
+            </div>
+          </div>
+          <p style="font-size:15px;color:var(--ink-2);line-height:1.5">Your reasoning is a strength. Your largest opportunity is verbal recall.</p>
+          <div class="pc">
+            <div class="drow" style="--f:var(--spd)"><span class="k"></span><span class="n">Speed</span><span class="t"><span style="width:82%"></span></span><span class="v">82</span></div>
+            <div class="drow" style="--f:var(--reas)"><span class="k"></span><span class="n">Reasoning</span><span class="t"><span style="width:73%"></span></span><span class="v">73</span></div>
+            <div class="drow" style="--f:var(--mem)"><span class="k"></span><span class="n">Memory</span><span class="t"><span style="width:61%"></span></span><span class="v">61</span></div>
+            <div class="drow" style="--f:var(--verb)"><span class="k"></span><span class="n">Verbal</span><span class="t"><span style="width:38%"></span></span><span class="v">38</span></div>
+          </div>
+          <button class="btn" style="width:100%">See my 28-day plan</button>
+        </div>
+      </div></div>
+      <p class="pcap">Result</p>
+    </div>
+
+    <!-- progress -->
+    <div class="pw">
+      <div class="phone"><div class="scr">
+        <div class="sb"><span>9:41</span><span>▁▃▅</span></div>
+        <div class="sc">
+          <p class="sh">Progress</p>
+          <div class="pc" style="--f:var(--verb)">
+            <div class="ph"><span class="pt">Verbal retrieval</span><span class="pv" style="color:var(--verb-t)">+6%</span></div>
+            <svg viewBox="0 0 220 50" preserveAspectRatio="none" style="width:100%;height:50px;display:block" role="img" aria-label="Verbal retrieval trending upward">
+              <polyline points="2,41 33,38 64,39 95,32 126,28 157,22 188,17 218,11" fill="none" stroke="#0E9384" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="218" cy="11" r="3.6" fill="#0E9384"/>
+            </svg>
+          </div>
+          <div class="pc">
+            <div class="ph"><span class="pt">All domains · 28 days</span></div>
+            <div class="drow" style="--f:var(--verb)"><span class="k"></span><span class="n">Verbal</span><span class="t"><span style="width:44%"></span></span><span class="v">+6</span></div>
+            <div class="drow" style="--f:var(--att)"><span class="k"></span><span class="n">Attention</span><span class="t"><span style="width:52%"></span></span><span class="v">+3</span></div>
+            <div class="drow" style="--f:var(--mem)"><span class="k"></span><span class="n">Memory</span><span class="t"><span style="width:63%"></span></span><span class="v">+1</span></div>
+            <div class="drow" style="--f:var(--spd)"><span class="k"></span><span class="n">Speed</span><span class="t"><span style="width:80%"></span></span><span class="v">−1</span></div>
+          </div>
+          <p style="font-size:13px;color:var(--ink-3);line-height:1.5">Training gains reflect practice on these exercises. Your next assessment on 12 August uses different tasks.</p>
+        </div>
+        <nav class="tabs"><a href="#"><b></b>Today</a><a class="on" href="#"><b></b>Progress</a><a href="#"><b></b>Plan</a><a href="#"><b></b>Profile</a></nav>
+      </div></div>
+      <p class="pcap">Progress</p>
+    </div>
+  </div>
+</section>
+
+<!-- DO / DONT -->
+<section class="page band">
+  <div class="band-head">
+    <h2>Keeping it clean</h2>
+    <p class="body">Most of what makes an interface feel machine-made is additive. These are the things to keep leaving out.</p>
+  </div>
+  <div class="dd">
+    <div class="s">
+      <h3>Do</h3>
+      <ul>
+        <li>Let white cards float on tinted ground — depth without shadow</li>
+        <li>Keep one primary action per screen, in ink</li>
+        <li>Use colour only to mean a domain</li>
+        <li>Set every number in tabular figures</li>
+        <li>Leave more space than feels necessary</li>
+        <li>Save the full-screen inversion for tasks that are being measured</li>
+      </ul>
+    </div>
+    <div class="s">
+      <h3>Don't</h3>
+      <ul>
+        <li>Gradients on cards, or glows outside focus mode</li>
+        <li>Uppercase mono labels as decoration</li>
+        <li>Numbered markers where there's no real sequence</li>
+        <li>Drop shadows to fake hierarchy the tint already gives you</li>
+        <li>Mascots, confetti, badges, gems, streak guilt</li>
+        <li>A third typeface, however tempting</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<footer><div class="page"><p>Mindspan design system v2 · Instrument Sans · IBM Plex Mono · Tokens map 1:1 to the React Native theme file</p></div></footer>
+
+<script>
+(function(){
+  'use strict';
+  var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function band(el,lo,hi,pt,a,b){
+    if(!el)return;
+    el.innerHTML='<span class="tk"></span>'+
+      '<span class="rg" style="left:'+lo+'%;width:'+(hi-lo)+'%"></span>'+
+      '<span class="pt" style="left:'+pt+'%"></span>'+
+      '<span class="cp" style="left:0">'+a+'</span>'+
+      '<span class="cp" style="right:0">'+b+'</span>';
+  }
+  band(document.getElementById('b1'),28,64,46,'30','60');
+  band(document.getElementById('b2'),44,78,62,'0','100');
+  band(document.getElementById('b3'),22,70,44,'250','700');
+  band(document.getElementById('b4'),28,64,46,'30','60');
+  band(document.getElementById('b5'),28,64,46,'30','60');
+
+  var nums=[].slice.call(document.querySelectorAll('[data-count]'));
+  function run(el){
+    var target=parseInt(el.getAttribute('data-count'),10),t0=null;
+    if(reduce){el.textContent=target;return;}
+    el.textContent='0';
+    requestAnimationFrame(function step(ts){
+      if(!t0)t0=ts;
+      var p=Math.min(1,(ts-t0)/680),e=1-Math.pow(1-p,3);
+      el.textContent=Math.round(target*e);
+      if(p<1)requestAnimationFrame(step);
+    });
+  }
+  if('IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(es){
+      es.forEach(function(e){if(e.isIntersecting){run(e.target);io.unobserve(e.target);}});
+    },{threshold:.6});
+    nums.forEach(function(n){io.observe(n);});
+  }else{nums.forEach(run);}
+})();
+</script>
+</body>
+</html>
