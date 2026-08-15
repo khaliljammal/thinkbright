@@ -28,19 +28,19 @@ export const font = {
 } as const;
 
 /**
- * PRD v2 renames the design system's domains to six scored skills and drops
- * processing speed from scoring. The freed `--spd` red is reassigned to
- * Flexibility, and the design system's magenta becomes Recall.
+ * Seven stable top-level domains. Games are averaged within a domain before
+ * these weights are applied, so adding content cannot inflate a domain.
  */
-export const SKILLS = ['focus', 'memory', 'recall', 'words', 'reasoning', 'flexibility'] as const;
+export const SKILLS = ['processing', 'focus', 'memory', 'recall', 'words', 'reasoning', 'flexibility'] as const;
 export type SkillKey = (typeof SKILLS)[number];
 
 export const skill: Record<SkillKey, { label: string; fill: string; text: string; weight: number }> = {
-  focus: { label: 'Focus', fill: '#E08A00', text: '#A85C00', weight: 0.2 },
-  memory: { label: 'Memory', fill: '#6355E0', text: '#4F3FC9', weight: 0.2 },
+  processing: { label: 'Speed', fill: '#E1483C', text: '#C13126', weight: 0.2 },
+  focus: { label: 'Focus', fill: '#E08A00', text: '#A85C00', weight: 0.15 },
+  memory: { label: 'Memory', fill: '#6355E0', text: '#4F3FC9', weight: 0.15 },
   recall: { label: 'Recall', fill: '#C4359C', text: '#AF2C8A', weight: 0.15 },
-  words: { label: 'Words', fill: '#0E9384', text: '#076B60', weight: 0.2 },
-  reasoning: { label: 'Reasoning', fill: '#1D6FE0', text: '#1A5FC4', weight: 0.15 },
+  words: { label: 'Words', fill: '#0E9384', text: '#076B60', weight: 0.15 },
+  reasoning: { label: 'Reasoning', fill: '#1D6FE0', text: '#1A5FC4', weight: 0.1 },
   flexibility: { label: 'Flexibility', fill: '#E1483C', text: '#C13126', weight: 0.1 },
 };
 

@@ -6,36 +6,53 @@ import { createClient } from 'jsr:@supabase/supabase-js@2';
 const SCORING_VERSION = 'ms-scoring-2';
 
 const WEIGHTS: Record<string, number> = {
-  focus: 0.2,
-  memory: 0.2,
+  processing: 0.2,
+  focus: 0.15,
+  memory: 0.15,
   recall: 0.15,
-  words: 0.2,
-  reasoning: 0.15,
+  words: 0.15,
+  reasoning: 0.1,
   flexibility: 0.1,
 };
 
 const GAME_SKILL: Record<string, string> = {
+  'peripheral-pulse': 'processing',
   'signal-stop': 'focus',
   'color-clash': 'focus',
   switchboard: 'flexibility',
   'memory-ladder': 'memory',
-  'pattern-path': 'recall',
+  'pattern-path': 'memory',
+  'spatial-sequence': 'memory',
+  'name-face': 'recall',
+  'target-hunt': 'processing',
+  'mind-rotate': 'reasoning',
+  'word-vault': 'recall',
+  'word-connections': 'words',
+  'plan-ahead': 'reasoning',
   'word-rescue': 'words',
   'sequence-detective': 'reasoning',
 };
 
 const GAME_ENGINE: Record<string, 'A' | 'B' | 'C'> = {
+  'peripheral-pulse': 'A',
   'signal-stop': 'A',
   'color-clash': 'A',
   switchboard: 'A',
   'memory-ladder': 'C',
   'pattern-path': 'C',
+  'spatial-sequence': 'C',
+  'name-face': 'B',
+  'target-hunt': 'B',
+  'mind-rotate': 'B',
+  'word-vault': 'B',
+  'word-connections': 'B',
+  'plan-ahead': 'B',
   'word-rescue': 'B',
   'sequence-detective': 'B',
 };
 
 type Trial = { rtMs: number | null; correct: boolean; isNoGo?: boolean };
-type GameResult = { gameId: string; trials: Trial[]; levelReached?: number };
+type GameResult = { gameId: string; trials: Trial[]; levelReached?: number; metrics?: Record<string, number | null> };
 
 const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
 
@@ -58,6 +75,16 @@ function scoreGame(r: GameResult) {
   const engine = GAME_ENGINE[r.gameId];
   const acc = accuracy(r.trials);
   const con = consistency(r.trials);
+  if (r.gameId === 'name-face' || r.gameId === 'word-vault') {
+    return Math.round(100 * clamp(0.8 * acc + 0.2 * con, 0, 1));
+  }
+  if (r.gameId === 'plan-ahead') {
+    const efficiency = clamp(r.metrics?.planningEfficiency ?? 0, 0, 1);
+    return Math.round(100 * clamp(0.8 * efficiency + 0.2 * acc, 0, 1));
+  }
+  if (r.gameId === 'target-hunt') {
+    return Math.round(100 * clamp(0.75 * acc + 0.25 * con, 0, 1));
+  }
   if (engine === 'C') {
     const span = clamp((r.levelReached ?? 0) / 9, 0, 1);
     return Math.round(100 * clamp(0.6 * span + 0.3 * acc + 0.1 * con, 0, 1));

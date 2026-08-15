@@ -127,17 +127,28 @@ export const useSession = create<State>((set, get) => ({
   pushResult: (r) => set({ pending: [...get().pending, r] }),
 
   commitCheck: async (rec) => {
+    const observations = get().pending;
     set({ checks: [...get().checks, rec], pending: [] });
     void save(get());
     const uid = get().userId;
     if (!supabase || !uid) return;
-    await supabase.from('checks').insert({
+    const { data: check } = await supabase.from('checks').insert({
       user_id: uid,
       taken_at: rec.takenAt,
       mind_age: rec.mindAge,
       skills: rec.skills,
       mean_rt_ms: rec.meanRtMs,
-    });
+    }).select('id').single();
+    if (!check || !observations.length) return;
+    await supabase.from('assessment_observations').insert(observations.map((result) => ({
+      user_id: uid,
+      check_id: check.id,
+      game_id: result.gameId,
+      mode: result.mode ?? 'assessment',
+      level_reached: result.levelReached ?? null,
+      trials: result.trials,
+      metrics: result.metrics ?? {},
+    })));
   },
 
   completeWorkout: async (results) => {
@@ -167,7 +178,12 @@ export const useSession = create<State>((set, get) => ({
     await supabase.from('sessions').insert({
       user_id: uid,
       played_at: new Date().toISOString(),
-      games: results.map((r) => ({ game_id: r.gameId, level: r.levelReached ?? null })),
+      games: results.map((r) => ({
+        game_id: r.gameId,
+        level: r.levelReached ?? null,
+        mode: r.mode ?? 'training',
+        metrics: r.metrics ?? {},
+      })),
     });
   },
 

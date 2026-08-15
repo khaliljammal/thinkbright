@@ -7,11 +7,13 @@ import { Card, DomainRow } from '../src/components/Card';
 import { color, font, skill, SKILLS } from '../src/theme/tokens';
 import { type } from '../src/theme/type';
 import { useSession } from '../src/store/session';
+import { profileConfidence } from '../src/lib/scoring';
 
 export default function ResultSkills() {
   const router = useRouter();
   const checks = useSession((s) => s.checks);
   const latest = checks[checks.length - 1];
+  const confidence = profileConfidence(latest?.skills ?? {});
 
   const rows = useMemo(
     () => SKILLS.map((k) => ({ key: k, score: latest?.skills[k] })).filter((r) => r.score !== undefined),
@@ -20,9 +22,17 @@ export default function ResultSkills() {
 
   return (
     <Screen scroll footer={<Button label="Start training" onPress={() => router.replace('/(tabs)/play')} />}>
-      <Text style={[type.title, { marginTop: 8, fontSize: 26 }]}>Six skills, one{'\n'}obvious weak spot.</Text>
+      <Text style={[type.title, { marginTop: 8, fontSize: 26 }]}>Seven domains, one{'\n'}cognitive profile.</Text>
 
-      <Card style={{ marginTop: 16, paddingVertical: 6, paddingHorizontal: 18 }}>
+      <Card style={{ marginTop: 16, paddingVertical: 16 }}>
+        <Text style={s.label}>Cognitive Profile Confidence</Text>
+        <View style={s.rtRow}>
+          <Text style={[s.rt, { fontSize: 28 }]}>{confidence.level}</Text>
+          <Text style={s.rtUnit}>{Math.round(confidence.coverage * 100)}% measured</Text>
+        </View>
+      </Card>
+
+      <Card style={{ marginTop: 12, paddingVertical: 6, paddingHorizontal: 18 }}>
         {rows.map((r, i) => (
           <DomainRow
             key={r.key}

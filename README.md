@@ -1,7 +1,8 @@
 # Mindspan
 
 A daily five-minute brain workout built with Expo, React Native, and TypeScript.
-The product requirements and design-system reference live at the repository root.
+The original product requirements and design-system reference live at the repository root.
+The cognitive-game expansion specification is in `docs/cognitive-game-expansion-prd.md`.
 
 The product hangs off one separation: **daily play never moves your Mind Age —
 only a check does.** The app is porcelain all day and inverts to focus-mode dark
@@ -19,7 +20,7 @@ npx expo start
 Scan the QR code with the iPhone Camera app. Phone and computer need to be on the
 same Wi-Fi; if they aren't, use `npx expo start --tunnel`.
 
-No `.env` and no accounts needed to play. Everything runs local — all seven games,
+No `.env` and no accounts needed to play. Everything runs local — all 13 core games,
 the full Mind Age check, scoring, the reveal, streaks, the four tabs — and scores
 persist to the phone.
 
@@ -32,7 +33,7 @@ now** to get through onboarding. Those two paths need a development build
 ### Fastest route to the interesting part
 
 **Get started → Skip for now → Continue → Continue → Start the check.** That drops
-you into focus mode for the six-task check; the Mind Age reveal at the end is the
+you into focus mode for the controlled full-battery check; the Mind Age reveal at the end is the
 moment the whole product hangs off.
 
 Run the complete validation suite with `npm run check`, or run `npm test` and
@@ -75,15 +76,16 @@ RevenueCat.
 ```
 app/                    expo-router routes, one file per screen
   (tabs)/               Play · Progress · Mind Age · You
-  check/[step].tsx      the six-task Mind Age check
+  check/[step].tsx      the controlled 13-game assessment
   workout.tsx           the daily loop: warm-up, focus round, wildcard
 src/
   engines/              A stimulus/response · B item/prompt · C sequence/recall
-  games/                the seven games, built on those three engines
+  games/                the 13-game battery, built on shared engines
   lib/scoring.ts        skills → composite → Mind Age (mirrors the edge function)
   lib/plan.ts           picks today's three games
   theme/tokens.ts       design system v2, 1:1
 supabase/               schema and the scoring edge function
+docs/                   product specifications for the expanded battery
 ```
 
 ## Project status

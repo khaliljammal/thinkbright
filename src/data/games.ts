@@ -2,11 +2,19 @@ import { SkillKey } from '../theme/tokens';
 
 export type EngineId = 'A' | 'B' | 'C';
 export type GameId =
+  | 'peripheral-pulse'
   | 'signal-stop'
   | 'color-clash'
   | 'switchboard'
   | 'memory-ladder'
   | 'pattern-path'
+  | 'spatial-sequence'
+  | 'name-face'
+  | 'target-hunt'
+  | 'mind-rotate'
+  | 'word-vault'
+  | 'word-connections'
+  | 'plan-ahead'
   | 'word-rescue'
   | 'sequence-detective';
 
@@ -24,6 +32,13 @@ export type Game = {
 };
 
 export const GAMES: Record<GameId, Game> = {
+  'peripheral-pulse': {
+    id: 'peripheral-pulse', name: 'Peripheral Pulse', skill: 'processing', engine: 'A',
+    paradigm: 'DIVIDED ATTENTION',
+    measures: 'Targets move beyond the centre. Measures visual processing speed across locations.',
+    brief: 'Keep your eyes near the middle and tap as soon as the amber target appears. It can arrive anywhere.',
+    durationSec: 45,
+  },
   'signal-stop': {
     id: 'signal-stop',
     name: 'Signal Stop',
@@ -67,12 +82,61 @@ export const GAMES: Record<GameId, Game> = {
   'pattern-path': {
     id: 'pattern-path',
     name: 'Pattern Path',
-    skill: 'recall',
+    skill: 'memory',
     engine: 'C',
     paradigm: 'CORSI BLOCKS',
     measures: 'Spatial sequences, repeated in order. Measures visuospatial short-term recall.',
     brief: 'Tiles light up one at a time. Tap them back in the same order.',
     durationSec: 40,
+  },
+  'spatial-sequence': {
+    id: 'spatial-sequence', name: 'Spatial Sequence', skill: 'memory', engine: 'C',
+    paradigm: 'CORSI BLOCKS',
+    measures: 'Recreate a changing path through space. Measures visuospatial working memory.',
+    brief: 'Tiles light up one at a time. Tap them back in the same order. The path grows when you get it right.',
+    durationSec: 45,
+  },
+  'name-face': {
+    id: 'name-face', name: 'Name & Face', skill: 'recall', engine: 'B',
+    paradigm: 'ASSOCIATIVE MEMORY',
+    measures: 'Bind a fictional face to a name, then retrieve the association.',
+    brief: 'Meet four fictional people. Their names disappear, then you match each face back to the right one.',
+    durationSec: 55,
+  },
+  'target-hunt': {
+    id: 'target-hunt', name: 'Target Hunt', skill: 'processing', engine: 'B',
+    paradigm: 'VISUAL SEARCH',
+    measures: 'Find one target among similar distractors. Measures selective attention and search speed.',
+    brief: 'Find the odd arrow in each field. Accuracy first—random tapping only makes the result worse.',
+    durationSec: 45,
+  },
+  'mind-rotate': {
+    id: 'mind-rotate', name: 'Mind Rotate', skill: 'reasoning', engine: 'B',
+    paradigm: 'MENTAL ROTATION',
+    measures: 'Judge rotated and mirrored forms. Measures visuospatial reasoning.',
+    brief: 'Decide whether the second symbol is the same form rotated or a mirrored version.',
+    durationSec: 50,
+  },
+  'word-vault': {
+    id: 'word-vault', name: 'Word Vault', skill: 'recall', engine: 'B',
+    paradigm: 'VERBAL LEARNING',
+    measures: 'Encode unrelated words and recognize them after interference.',
+    brief: 'Study the word list. After a short distraction, pick out only the words you actually saw.',
+    durationSec: 60,
+  },
+  'word-connections': {
+    id: 'word-connections', name: 'Word Connections', skill: 'words', engine: 'B',
+    paradigm: 'SEMANTIC RELATIONSHIPS',
+    measures: 'Choose the closest semantic relationship without relying on trivia.',
+    brief: 'Choose the word most closely connected to the prompt. The alternatives get progressively closer.',
+    durationSec: 45,
+  },
+  'plan-ahead': {
+    id: 'plan-ahead', name: 'Plan Ahead', skill: 'reasoning', engine: 'B',
+    paradigm: 'EXECUTIVE PLANNING',
+    measures: 'Transform a start state into a goal efficiently. Measures planning depth and rule control.',
+    brief: 'Reorder the tiles to match the goal. Only neighbouring tiles can swap, so think before the first move.',
+    durationSec: 55,
   },
   'word-rescue': {
     id: 'word-rescue',
@@ -96,14 +160,13 @@ export const GAMES: Record<GameId, Game> = {
   },
 };
 
-export const GAME_LIST = Object.values(GAMES);
-
-/** The six tasks of a Mind Age check, one per scored skill. */
-export const CHECK_ORDER: GameId[] = [
-  'signal-stop',
-  'memory-ladder',
-  'pattern-path',
-  'word-rescue',
-  'sequence-detective',
-  'switchboard',
+export const CORE_GAME_IDS: GameId[] = [
+  'peripheral-pulse', 'memory-ladder', 'signal-stop', 'word-rescue', 'sequence-detective',
+  'switchboard', 'name-face', 'spatial-sequence', 'target-hunt', 'mind-rotate',
+  'word-vault', 'word-connections', 'plan-ahead',
 ];
+
+export const GAME_LIST = CORE_GAME_IDS.map((id) => GAMES[id]);
+
+/** Controlled full-battery order. Daily training continues to select only three games. */
+export const CHECK_ORDER: GameId[] = [...CORE_GAME_IDS];

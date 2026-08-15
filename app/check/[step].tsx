@@ -8,7 +8,7 @@ import { color, font, skill } from '../../src/theme/tokens';
 
 import { CHECK_ORDER, GAMES } from '../../src/data/games';
 import { GAME_COMPONENTS } from '../../src/games';
-import { GameResult, accuracy, meanRt } from '../../src/lib/scoring';
+import { GameResult, accuracy, deriveGameMetrics, meanRt } from '../../src/lib/scoring';
 import { useSession } from '../../src/store/session';
 
 type Stage = 'brief' | 'play' | 'between';
@@ -28,8 +28,9 @@ export default function CheckStep() {
   const [last, setLast] = useState<GameResult | null>(null);
 
   const finish = (result: GameResult) => {
-    pushResult(result);
-    setLast(result);
+    const assessment = { ...result, mode: 'assessment' as const, metrics: deriveGameMetrics(result) };
+    pushResult(assessment);
+    setLast(assessment);
     setStage('between');
   };
 
@@ -75,7 +76,7 @@ export default function CheckStep() {
               {GAMES[upcoming].paradigm === 'DIGIT SPAN' ? 'Sequences, backwards. Take a breath first.' : 'Take a breath first.'}
             </Text>
           ) : (
-            <Text style={s.nextLine}>That's all six. Let's see what they add up to.</Text>
+            <Text style={s.nextLine}>That's the full battery. Let's see what it adds up to.</Text>
           )}
         </View>
       </Screen>

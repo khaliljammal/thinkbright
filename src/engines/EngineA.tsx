@@ -12,6 +12,7 @@ export type StimulusSpec<S> = {
   stim: S;
   /** Null means this is a no-go trial: the correct response is no response. */
   expected: string | null;
+  metadata?: TrialRecord['metadata'];
 };
 
 type Props<S> = {
@@ -84,7 +85,7 @@ export function EngineA<S>({
       const expected = current.expected;
       // A response on a no-go trial is always wrong; on a go trial the choice must match.
       const correct = expected !== null && (options ? choice === expected : true);
-      commit({ rtMs, correct, isNoGo: expected === null });
+      commit({ rtMs, correct, isNoGo: expected === null, metadata: current.metadata });
     },
     [current, options, commit],
   );
@@ -109,7 +110,7 @@ export function EngineA<S>({
             if (answered.current) return;
             // Timed out: correct only if withholding was the right call.
             const isNoGo = expectedRef.current === null;
-            commitRef.current({ rtMs: null, correct: isNoGo, isNoGo });
+            commitRef.current({ rtMs: null, correct: isNoGo, isNoGo, metadata: current.metadata });
           }, responseWindowMs),
         );
       }, gap),

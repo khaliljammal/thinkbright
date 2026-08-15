@@ -14,6 +14,7 @@ export type Item = {
   options: string[];
   answer: string;
   difficulty: number;
+  metadata?: TrialRecord['metadata'];
 };
 
 type Props = {
@@ -37,7 +38,7 @@ export function EngineB({ items, perItemMs = 9000, onFinish }: Props) {
     (correct: boolean, rtMs: number | null) => {
       if (answered.current) return;
       answered.current = true;
-      recorded.current.push({ rtMs, correct });
+      recorded.current.push({ rtMs, correct, metadata: item.metadata });
       if (correct) hardest.current = Math.max(hardest.current, item.difficulty);
       Haptics.impactAsync(
         correct ? Haptics.ImpactFeedbackStyle.Light : Haptics.ImpactFeedbackStyle.Rigid,

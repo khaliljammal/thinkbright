@@ -32,9 +32,9 @@ export default function CheckIntro() {
       <View style={{ paddingTop: 8 }}>
         <Eyebrow>FIRST CHECK</Eyebrow>
       </View>
-      <Text style={[type.title, { marginTop: 10, fontSize: 30 }]}>Four minutes{'\n'}and you get{'\n'}a number.</Text>
+      <Text style={[type.title, { marginTop: 10, fontSize: 30 }]}>About twelve minutes{'\n'}for the full{'\n'}profile.</Text>
       <Text style={[type.body, { marginTop: 12, fontSize: 15.5 }]}>
-        Six short tasks. The screen goes dark so nothing competes with them. Do it somewhere you won't be
+        Thirteen short tasks. The screen goes dark so nothing competes with them. Do it somewhere you won't be
         interrupted — that's most of it.
       </Text>
 

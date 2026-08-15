@@ -10,7 +10,7 @@ import { type } from '../src/theme/type';
 import { GAMES, GameId } from '../src/data/games';
 import { GAME_COMPONENTS } from '../src/games';
 import { buildPlan, daySeed, PlanSlot } from '../src/lib/plan';
-import { GameResult, accuracy } from '../src/lib/scoring';
+import { GameResult, accuracy, deriveGameMetrics } from '../src/lib/scoring';
 import { useSession } from '../src/store/session';
 
 type Stage = 'brief' | 'play' | 'feedback' | 'summary';
@@ -36,7 +36,8 @@ export default function Workout() {
   const startedAt = useMemo(() => Date.now(), []);
 
   const onFinish = (result: GameResult) => {
-    setResults((r) => [...r, result]);
+    const complete = { ...result, mode: 'training' as const, metrics: deriveGameMetrics(result) };
+    setResults((r) => [...r, complete]);
     setStage('feedback');
   };
 
