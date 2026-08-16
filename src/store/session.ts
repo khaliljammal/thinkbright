@@ -14,6 +14,13 @@ export type CheckRecord = {
   meanRtMs: number | null;
 };
 
+export type DelayedRecallPayload = {
+  items: { cue: string; value: string }[];
+  foils: string[];
+  immediateAccuracy: number;
+  encodedAt: string;
+};
+
 type State = {
   ready: boolean;
   userId: string | null;
@@ -30,6 +37,7 @@ type State = {
   checks: CheckRecord[];
   /** Results collected during the check currently in progress. */
   pending: GameResult[];
+  delayedRecall: Partial<Record<'name-face' | 'word-vault', DelayedRecallPayload>>;
 
   hydrate: () => Promise<void>;
   setAge: (n: number) => void;
@@ -41,6 +49,7 @@ type State = {
 
   startCheck: () => void;
   pushResult: (r: GameResult) => void;
+  setDelayedRecall: (id: 'name-face' | 'word-vault', payload: DelayedRecallPayload) => void;
   commitCheck: (rec: CheckRecord) => Promise<void>;
   completeWorkout: (results: GameResult[]) => Promise<void>;
   levelFor: (id: GameId) => number;
@@ -76,11 +85,19 @@ export const useSession = create<State>((set, get) => ({
   levels: {},
   checks: [],
   pending: [],
+  delayedRecall: {},
 
   hydrate: async () => {
     try {
       const raw = await storage.get(KEY);
-      if (raw) set({ ...JSON.parse(raw) });
+      if (raw) {
+        const cached = JSON.parse(raw) as Partial<State>;
+        const levels = { ...(cached.levels ?? {}) };
+        if (levels['spatial-sequence'] === undefined && levels['pattern-path'] !== undefined) {
+          levels['spatial-sequence'] = levels['pattern-path'];
+        }
+        set({ ...cached, levels });
+      }
     } catch {
       // A corrupt cache is not worth blocking launch over.
     }
@@ -123,12 +140,13 @@ export const useSession = create<State>((set, get) => ({
     set({ userId: null, premium: false });
   },
 
-  startCheck: () => set({ pending: [] }),
+  startCheck: () => set({ pending: [], delayedRecall: {} }),
   pushResult: (r) => set({ pending: [...get().pending, r] }),
+  setDelayedRecall: (id, payload) => set({ delayedRecall: { ...get().delayedRecall, [id]: payload } }),
 
   commitCheck: async (rec) => {
     const observations = get().pending;
-    set({ checks: [...get().checks, rec], pending: [] });
+    set({ checks: [...get().checks, rec], pending: [], delayedRecall: {} });
     void save(get());
     const uid = get().userId;
     if (!supabase || !uid) return;

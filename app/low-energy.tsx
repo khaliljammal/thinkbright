@@ -10,7 +10,8 @@ import { useSession } from '../src/store/session';
 
 const QUICK: { id: GameId; note: string }[] = [
   { id: 'signal-stop', note: 'FAST ONE' },
-  { id: 'pattern-path', note: 'NO READING' },
+  { id: 'spatial-sequence', note: 'NO READING' },
+  { id: 'color-clash', note: 'BONUS GAME' },
   { id: 'word-rescue', note: 'THE HARD ONE' },
 ];
 
@@ -41,7 +42,7 @@ export default function LowEnergy() {
                 <View style={[s.key, { backgroundColor: skill[g.skill].fill }]} />
                 <Text style={[type.subhead, { flex: 1, fontSize: 15 }]}>{g.name}</Text>
                 <Text style={s.note}>
-                  {q.id === 'pattern-path' ? `LEVEL ${levelFor(q.id)}` : q.note}
+                  {q.id === 'spatial-sequence' ? `LEVEL ${levelFor(q.id)}` : q.note}
                 </Text>
               </Pressable>
             );

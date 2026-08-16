@@ -6,7 +6,7 @@ import { Button } from '../src/components/Button';
 import { Card } from '../src/components/Card';
 import { color, font, skill } from '../src/theme/tokens';
 import { type } from '../src/theme/type';
-import { CHECK_ORDER, GAMES } from '../src/data/games';
+import { CORE_GAME_IDS, GAMES } from '../src/data/games';
 import { useSession } from '../src/store/session';
 
 export default function CheckIntro() {
@@ -34,15 +34,15 @@ export default function CheckIntro() {
       </View>
       <Text style={[type.title, { marginTop: 10, fontSize: 30 }]}>About twelve minutes{'\n'}for the full{'\n'}profile.</Text>
       <Text style={[type.body, { marginTop: 12, fontSize: 15.5 }]}>
-        Thirteen short tasks. The screen goes dark so nothing competes with them. Do it somewhere you won't be
-        interrupted — that's most of it.
+        Thirteen games across fifteen measurement phases. Two memory tasks return later without warning. Do it
+        somewhere you won't be interrupted — that's most of it.
       </Text>
 
       <Card style={{ marginTop: 20, paddingVertical: 6, paddingHorizontal: 16 }}>
-        {CHECK_ORDER.map((id, i) => {
+        {CORE_GAME_IDS.map((id, i) => {
           const g = GAMES[id];
           return (
-            <View key={id} style={[s.row, i === CHECK_ORDER.length - 1 && { borderBottomWidth: 0 }]}>
+            <View key={id} style={[s.row, i === CORE_GAME_IDS.length - 1 && { borderBottomWidth: 0 }]}> 
               <View style={[s.key, { backgroundColor: skill[g.skill].fill }]} />
               <Text style={[type.label, { flex: 1 }]}>{g.name}</Text>
               <Text style={s.dur}>{g.durationSec}s</Text>

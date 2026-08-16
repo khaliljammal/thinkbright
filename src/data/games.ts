@@ -168,5 +168,26 @@ export const CORE_GAME_IDS: GameId[] = [
 
 export const GAME_LIST = CORE_GAME_IDS.map((id) => GAMES[id]);
 
-/** Controlled full-battery order. Daily training continues to select only three games. */
-export const CHECK_ORDER: GameId[] = [...CORE_GAME_IDS];
+export type AssessmentStep = {
+  gameId: GameId;
+  phase?: 'immediate' | 'delayed';
+};
+
+/** Memory encoding happens early; delayed retrieval follows several unrelated tasks. */
+export const CHECK_ORDER: AssessmentStep[] = [
+  { gameId: 'peripheral-pulse' },
+  { gameId: 'name-face', phase: 'immediate' },
+  { gameId: 'signal-stop' },
+  { gameId: 'memory-ladder' },
+  { gameId: 'word-vault', phase: 'immediate' },
+  { gameId: 'sequence-detective' },
+  { gameId: 'switchboard' },
+  { gameId: 'spatial-sequence' },
+  { gameId: 'target-hunt' },
+  { gameId: 'mind-rotate' },
+  { gameId: 'word-rescue' },
+  { gameId: 'word-connections' },
+  { gameId: 'plan-ahead' },
+  { gameId: 'name-face', phase: 'delayed' },
+  { gameId: 'word-vault', phase: 'delayed' },
+];

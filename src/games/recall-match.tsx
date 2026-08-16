@@ -6,6 +6,7 @@ import { TrialTicks } from '../components/Numeral';
 import { GameProps } from '../engines/types';
 import { TrialRecord } from '../lib/scoring';
 import { color, font, radius } from '../theme/tokens';
+import { useSession } from '../store/session';
 
 type RecallItem = { cue: string; value: string };
 
@@ -16,31 +17,38 @@ const PEOPLE: RecallItem[] = [
 const WORDS = ['River', 'Glass', 'Tiger', 'Clock', 'Garden', 'Paper'];
 const FOILS = ['Lantern', 'Bottle', 'Falcon', 'Window', 'Forest', 'Canvas'];
 
-export function NameFace({ gameId, onFinish }: GameProps) {
-  return <RecallMatch gameId={gameId} items={PEOPLE} onFinish={onFinish} />;
+export function NameFace({ gameId, assessmentPhase = 'full', onFinish }: GameProps) {
+  return <RecallMatch gameId={gameId} items={PEOPLE} assessmentPhase={assessmentPhase} onFinish={onFinish} />;
 }
 
-export function WordVault({ gameId, onFinish }: GameProps) {
+export function WordVault({ gameId, assessmentPhase = 'full', onFinish }: GameProps) {
   const items = useMemo(() => WORDS.map((word) => ({ cue: 'WORD', value: word })), []);
-  return <RecallMatch gameId={gameId} items={items} foils={FOILS} onFinish={onFinish} />;
+  return <RecallMatch gameId={gameId} items={items} foils={FOILS} assessmentPhase={assessmentPhase} onFinish={onFinish} />;
 }
 
 function RecallMatch({
   gameId,
   items,
   foils = [],
+  assessmentPhase,
   onFinish,
-}: Pick<GameProps, 'gameId' | 'onFinish'> & { items: RecallItem[]; foils?: string[] }) {
-  const [phase, setPhase] = useState<'encode' | 'interference' | 'recall'>('encode');
+}: Pick<GameProps, 'gameId' | 'assessmentPhase' | 'onFinish'> & { items: RecallItem[]; foils?: string[] }) {
+  const recallId = gameId as 'name-face' | 'word-vault';
+  const delayedPayload = useSession((state) => state.delayedRecall[recallId]);
+  const setDelayedRecall = useSession((state) => state.setDelayedRecall);
+  const delayed = assessmentPhase === 'delayed';
+  const activeItems = delayedPayload?.items ?? items;
+  const activeFoils = delayedPayload?.foils ?? foils;
+  const [phase, setPhase] = useState<'encode' | 'interference' | 'recall'>(delayed ? 'recall' : 'encode');
   const [index, setIndex] = useState(0);
   const [parity, setParity] = useState(0);
   const trials = useRef<TrialRecord[]>([]);
   const shownAt = useRef(Date.now());
 
   const choices = useMemo(() => {
-    if (foils.length) return [...items.map((item) => item.value), ...foils].sort(() => Math.random() - 0.5);
-    return items.map((item) => item.value).sort(() => Math.random() - 0.5);
-  }, [foils, items]);
+    if (activeFoils.length) return [...activeItems.map((item) => item.value), ...activeFoils].sort(() => Math.random() - 0.5);
+    return activeItems.map((item) => item.value).sort(() => Math.random() - 0.5);
+  }, [activeFoils, activeItems]);
 
   const beginRecall = () => {
     shownAt.current = Date.now();
@@ -49,21 +57,38 @@ function RecallMatch({
   };
 
   const answer = (value: string) => {
-    const target = items[index].value;
+    const target = activeItems[index].value;
     const correct = value === target;
     trials.current.push({
       correct,
       rtMs: Date.now() - shownAt.current,
-      metadata: { phase: 'immediate', cue: items[index].cue, selected: value },
+      metadata: { phase: delayed ? 'delayed' : 'immediate', cue: activeItems[index].cue, selected: value },
     });
     Haptics.impactAsync(correct ? Haptics.ImpactFeedbackStyle.Light : Haptics.ImpactFeedbackStyle.Rigid).catch(() => {});
-    if (index + 1 >= items.length) {
+    if (index + 1 >= activeItems.length) {
       const hits = trials.current.filter((trial) => trial.correct).length;
+      const recallAccuracy = hits / activeItems.length;
+      if (assessmentPhase === 'immediate') {
+        setDelayedRecall(recallId, {
+          items: activeItems,
+          foils: activeFoils,
+          immediateAccuracy: recallAccuracy,
+          encodedAt: new Date().toISOString(),
+        });
+      }
       onFinish({
         gameId,
         trials: trials.current,
         levelReached: hits,
-        metrics: { immediateRecall: hits / items.length, itemsEncoded: items.length },
+        metrics: delayed
+          ? {
+              delayedRecall: recallAccuracy,
+              retentionRate: delayedPayload && delayedPayload.immediateAccuracy > 0
+                ? recallAccuracy / delayedPayload.immediateAccuracy
+                : null,
+              delayMs: delayedPayload ? Date.now() - new Date(delayedPayload.encodedAt).getTime() : null,
+            }
+          : { immediateRecall: recallAccuracy, itemsEncoded: activeItems.length },
       });
       return;
     }
@@ -76,14 +101,18 @@ function RecallMatch({
       <View style={s.root}>
         <Text style={s.kicker}>STUDY THESE</Text>
         <View style={s.encodingGrid}>
-          {items.map((item) => (
+          {activeItems.map((item) => (
             <View key={`${item.cue}-${item.value}`} style={s.encodingCard}>
               <Text style={s.cue}>{item.cue}</Text>
               <Text style={s.value}>{item.value}</Text>
             </View>
           ))}
         </View>
-        <Button label="I've got them" variant="onDark" onPress={() => setPhase('interference')} />
+        <Button
+          label="I've got them"
+          variant="onDark"
+          onPress={() => setPhase(assessmentPhase === 'immediate' ? 'recall' : 'interference')}
+        />
       </View>
     );
   }
@@ -108,14 +137,21 @@ function RecallMatch({
     );
   }
 
-  const item = items[index];
+  const item = activeItems[index];
+  if (!item) {
+    return (
+      <View style={s.root}>
+        <Text style={s.question}>The earlier memory set is unavailable. Restart the assessment to continue.</Text>
+      </View>
+    );
+  }
   return (
     <View style={s.root}>
-      <TrialTicks total={items.length} done={index} />
+      <TrialTicks total={activeItems.length} done={index} />
       <Text style={s.cue}>{item.cue}</Text>
-      <Text style={s.question}>{foils.length ? 'Was this word in the vault?' : 'What was this person’s name?'}</Text>
+      <Text style={s.question}>{activeFoils.length ? 'Which word was in the vault?' : 'What was this person’s name?'}</Text>
       <View style={s.options}>
-        {(foils.length ? [item.value, foils[index]].sort(() => Math.random() - 0.5) : choices).map((choice) => (
+        {(activeFoils.length ? [item.value, activeFoils[index]].sort(() => Math.random() - 0.5) : choices).map((choice) => (
           <Pressable key={choice} style={s.option} onPress={() => answer(choice)}>
             <Text style={s.optionText}>{choice}</Text>
           </Pressable>

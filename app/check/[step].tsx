@@ -17,7 +17,8 @@ export default function CheckStep() {
   const { step } = useLocalSearchParams<{ step: string }>();
   const router = useRouter();
   const index = Math.max(0, Math.min(CHECK_ORDER.length - 1, parseInt(step ?? '0', 10) || 0));
-  const gameId = CHECK_ORDER[index];
+  const assessmentStep = CHECK_ORDER[index];
+  const gameId = assessmentStep.gameId;
   const game = GAMES[gameId];
   const Game = GAME_COMPONENTS[gameId];
 
@@ -42,7 +43,7 @@ export default function CheckStep() {
   if (stage === 'play') {
     return (
       <Screen dark padded={false}>
-        <Game gameId={gameId} startLevel={levelFor(gameId)} onFinish={finish} />
+        <Game gameId={gameId} startLevel={levelFor(gameId)} assessmentPhase={assessmentStep.phase} onFinish={finish} />
       </Screen>
     );
   }
@@ -72,8 +73,8 @@ export default function CheckStep() {
 
           {upcoming ? (
             <Text style={s.nextLine}>
-              Next up: <Text style={{ color: color.focusInk }}>{GAMES[upcoming].name}</Text>.{' '}
-              {GAMES[upcoming].paradigm === 'DIGIT SPAN' ? 'Sequences, backwards. Take a breath first.' : 'Take a breath first.'}
+              Next up: <Text style={{ color: color.focusInk }}>{GAMES[upcoming.gameId].name}</Text>.{' '}
+              {GAMES[upcoming.gameId].paradigm === 'DIGIT SPAN' ? 'Sequences, backwards. Take a breath first.' : 'Take a breath first.'}
             </Text>
           ) : (
             <Text style={s.nextLine}>That's the full battery. Let's see what it adds up to.</Text>
@@ -99,7 +100,9 @@ export default function CheckStep() {
             <Text style={s.chipLabel}>{skill[game.skill].label}</Text>
           </View>
           <Text style={[s.darkTitle, { marginTop: 14, fontSize: 32 }]}>{game.name}</Text>
-          <Text style={s.darkBody}>{game.brief}</Text>
+          <Text style={s.darkBody}>
+            {assessmentStep.phase === 'delayed' ? 'A few games have passed. Retrieve the associations you saw earlier.' : game.brief}
+          </Text>
         </View>
       </View>
     </Screen>
