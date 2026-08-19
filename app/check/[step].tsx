@@ -8,7 +8,7 @@ import { color, font, skill } from '../../src/theme/tokens';
 
 import { CHECK_ORDER, GAMES } from '../../src/data/games';
 import { GAME_COMPONENTS } from '../../src/games';
-import { GameResult, accuracy, meanRt } from '../../src/lib/scoring';
+import { GameResult, accuracy, deriveGameMetrics, meanRt } from '../../src/lib/scoring';
 import { useSession } from '../../src/store/session';
 
 type Stage = 'brief' | 'play' | 'between';
@@ -17,7 +17,8 @@ export default function CheckStep() {
   const { step } = useLocalSearchParams<{ step: string }>();
   const router = useRouter();
   const index = Math.max(0, Math.min(CHECK_ORDER.length - 1, parseInt(step ?? '0', 10) || 0));
-  const gameId = CHECK_ORDER[index];
+  const assessmentStep = CHECK_ORDER[index];
+  const gameId = assessmentStep.gameId;
   const game = GAMES[gameId];
   const Game = GAME_COMPONENTS[gameId];
 
@@ -28,8 +29,9 @@ export default function CheckStep() {
   const [last, setLast] = useState<GameResult | null>(null);
 
   const finish = (result: GameResult) => {
-    pushResult(result);
-    setLast(result);
+    const assessment = { ...result, mode: 'assessment' as const, metrics: deriveGameMetrics(result) };
+    pushResult(assessment);
+    setLast(assessment);
     setStage('between');
   };
 
@@ -41,7 +43,7 @@ export default function CheckStep() {
   if (stage === 'play') {
     return (
       <Screen dark padded={false}>
-        <Game gameId={gameId} startLevel={levelFor(gameId)} onFinish={finish} />
+        <Game gameId={gameId} startLevel={levelFor(gameId)} assessmentPhase={assessmentStep.phase} onFinish={finish} />
       </Screen>
     );
   }
@@ -71,11 +73,11 @@ export default function CheckStep() {
 
           {upcoming ? (
             <Text style={s.nextLine}>
-              Next up: <Text style={{ color: color.focusInk }}>{GAMES[upcoming].name}</Text>.{' '}
-              {GAMES[upcoming].paradigm === 'DIGIT SPAN' ? 'Sequences, backwards. Take a breath first.' : 'Take a breath first.'}
+              Next up: <Text style={{ color: color.focusInk }}>{GAMES[upcoming.gameId].name}</Text>.{' '}
+              {GAMES[upcoming.gameId].paradigm === 'DIGIT SPAN' ? 'Sequences, backwards. Take a breath first.' : 'Take a breath first.'}
             </Text>
           ) : (
-            <Text style={s.nextLine}>That's all six. Let's see what they add up to.</Text>
+            <Text style={s.nextLine}>That's the full battery. Let's see what it adds up to.</Text>
           )}
         </View>
       </Screen>
@@ -98,7 +100,9 @@ export default function CheckStep() {
             <Text style={s.chipLabel}>{skill[game.skill].label}</Text>
           </View>
           <Text style={[s.darkTitle, { marginTop: 14, fontSize: 32 }]}>{game.name}</Text>
-          <Text style={s.darkBody}>{game.brief}</Text>
+          <Text style={s.darkBody}>
+            {assessmentStep.phase === 'delayed' ? 'A few games have passed. Retrieve the associations you saw earlier.' : game.brief}
+          </Text>
         </View>
       </View>
     </Screen>

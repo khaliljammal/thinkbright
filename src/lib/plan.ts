@@ -26,16 +26,31 @@ export function buildPlan({
   seed: number;
 }): PlanSlot[] {
   const scored = GAME_LIST.map((g) => ({ g, score: skills[g.skill] ?? 50 }));
+  const gameForSkill = (key: SkillKey, offset: number) => {
+    const games = GAME_LIST.filter((game) => game.skill === key);
+    return games[(seed + offset) % games.length];
+  };
 
-  const strongest = [...scored].sort((a, b) => b.score - a.score)[0].g.id;
+  const strongestSkill = [...scored].sort((a, b) => b.score - a.score)[0].g.skill;
+  const strongest = gameForSkill(strongestSkill, 0).id;
 
   const concernSkills = concerns.map((c) => CONCERN_SKILL[c]).filter(Boolean);
   const weakestPool = concernSkills.length
     ? scored.filter((x) => concernSkills.includes(GAMES[x.g.id].skill))
     : scored;
-  const focus = [...weakestPool].sort((a, b) => a.score - b.score)[0].g.id;
+  const preferredFocus = [...weakestPool]
+    .sort((a, b) => a.score - b.score)
+    .map((entry) => entry.g.skill)
+    .find((key) => key !== strongestSkill);
+  const focusSkill = preferredFocus ?? [...scored]
+    .sort((a, b) => a.score - b.score)
+    .map((entry) => entry.g.skill)
+    .find((key) => key !== strongestSkill) ?? strongestSkill;
+  const focus = gameForSkill(focusSkill, 1).id;
 
-  const rest = GAME_LIST.filter((g) => g.id !== strongest && g.id !== focus);
+  const rest = GAME_LIST.filter(
+    (game) => game.id !== strongest && game.id !== focus && game.skill !== strongestSkill && game.skill !== focusSkill,
+  );
   const wildcard = rest[seed % rest.length].id;
 
   return [

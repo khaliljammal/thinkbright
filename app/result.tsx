@@ -4,7 +4,6 @@ import { useRouter } from 'expo-router';
 import { Screen, Eyebrow } from '../src/components/Screen';
 import { Button } from '../src/components/Button';
 import { Card } from '../src/components/Card';
-import { CountUp } from '../src/components/Numeral';
 import { color, font, skill } from '../src/theme/tokens';
 import { type } from '../src/theme/type';
 import {
@@ -81,8 +80,8 @@ export default function Result() {
       </View>
 
       <Card style={{ marginTop: 14, paddingVertical: 26, alignItems: 'center' }}>
-        <Text style={s.cardLabel}>Your Mind Age</Text>
-        <CountUp value={rolling} size={88} style={{ marginTop: 6 }} />
+        <Text style={s.cardLabel}>Your Cognitive Performance Age</Text>
+        <Text style={s.ageRange}>{Math.max(18, rolling - 2)}–{Math.min(90, rolling + 2)}</Text>
         <Text style={s.verdict}>{verdict(rolling, age)}</Text>
       </Card>
 
@@ -119,6 +118,7 @@ function Scale({ mind, actual }: { mind: number; actual: number }) {
 
 const s = StyleSheet.create({
   cardLabel: { fontFamily: font.sansMedium, fontSize: 13.5, color: color.ink2 },
+  ageRange: { fontFamily: font.sansSemi, fontSize: 72, lineHeight: 84, letterSpacing: -3, color: color.ink, fontVariant: ['tabular-nums'] },
   verdict: { fontFamily: font.sans, fontSize: 16, color: color.ink2, marginTop: 10 },
   betweenRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' },
   smallLabel: { fontFamily: font.sansMedium, fontSize: 12.5, color: color.ink2 },

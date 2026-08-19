@@ -5,8 +5,17 @@ import { EngineB } from '../engines/EngineB';
 import { EngineC } from '../engines/EngineC';
 import { GameProps } from '../engines/types';
 import { color, font } from '../theme/tokens';
-import { WORD_RESCUE_ITEMS, SEQUENCE_ITEMS, pickItems } from '../data/items';
+import {
+  MIND_ROTATE_ITEMS,
+  SEQUENCE_ITEMS,
+  TARGET_HUNT_ITEMS,
+  WORD_CONNECTION_ITEMS,
+  WORD_RESCUE_ITEMS,
+  pickItems,
+} from '../data/items';
 import { GameId } from '../data/games';
+import { NameFace, WordVault } from './recall-match';
+import { PlanAhead } from './plan-ahead';
 
 const shuffled = <T,>(a: T[]) => [...a].sort(() => Math.random() - 0.5);
 
@@ -38,6 +47,36 @@ export function SignalStop({ onFinish, gameId }: GameProps) {
               : { borderRadius: 12, backgroundColor: color.stimStop },
           ]}
         />
+      )}
+      onFinish={(trials) => onFinish({ gameId, trials })}
+    />
+  );
+}
+
+type PulseStim = { x: number; y: number; location: string };
+
+export function PeripheralPulse({ onFinish, gameId }: GameProps) {
+  const points = [
+    { x: -58, y: -40, location: 'top-left' }, { x: 58, y: -40, location: 'top-right' },
+    { x: -72, y: 28, location: 'bottom-left' }, { x: 72, y: 28, location: 'bottom-right' },
+    { x: 0, y: 0, location: 'centre' },
+  ];
+  const trials: StimulusSpec<PulseStim>[] = React.useMemo(
+    () => Array.from({ length: 18 }, (_, index) => {
+      const point = points[Math.floor(Math.random() * points.length)];
+      return { stim: point, expected: 'go', metadata: { location: point.location, trial: index } };
+    }),
+    [],
+  );
+  return (
+    <EngineA
+      trials={trials}
+      responseWindowMs={1100}
+      renderStimulus={({ x, y }) => (
+        <View style={{ width: 190, height: 140, alignItems: 'center', justifyContent: 'center' }}>
+          <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: color.focusInk2 }} />
+          <View style={[s.pulse, { transform: [{ translateX: x }, { translateY: y }] }]} />
+        </View>
       )}
       onFinish={(trials) => onFinish({ gameId, trials })}
     />
@@ -83,11 +122,12 @@ export function Switchboard({ onFinish, gameId }: GameProps) {
     let rule: SwitchStim['rule'] = 'colour';
     return Array.from({ length: 18 }, (_, i) => {
       // The rule flips every few trials without warning — that's the cost being measured.
-      if (i > 0 && i % 4 === 0) rule = rule === 'colour' ? 'shape' : 'colour';
+      const switchTrial = i > 0 && i % 4 === 0;
+      if (switchTrial) rule = rule === 'colour' ? 'shape' : 'colour';
       const shape: Shape = Math.random() < 0.5 ? 'circle' : 'square';
       const hue: SwitchStim['hue'] = Math.random() < 0.5 ? 'amber' : 'teal';
       const expected = rule === 'colour' ? (hue === 'amber' ? 'left' : 'right') : shape === 'circle' ? 'left' : 'right';
-      return { stim: { shape, hue, rule }, expected };
+      return { stim: { shape, hue, rule }, expected, metadata: { switchTrial, rule } };
     });
   }, []);
 
@@ -129,6 +169,8 @@ export function PatternPath({ onFinish, gameId, startLevel }: GameProps) {
     />
   );
 }
+
+export const SpatialSequence = PatternPath;
 
 export function MemoryLadder({ onFinish, gameId, startLevel }: GameProps) {
   const cells = React.useMemo(
@@ -176,11 +218,31 @@ export function SequenceDetective({ onFinish, gameId, startLevel }: GameProps) {
   );
 }
 
+function ItemGame({ bank, gameId, startLevel, onFinish }: GameProps & { bank: typeof SEQUENCE_ITEMS }) {
+  const items = React.useMemo(
+    () => pickItems(bank, Math.min(6, bank.length), startLevel).map((item) => ({ ...item, options: shuffled(item.options) })),
+    [bank, startLevel],
+  );
+  return <EngineB items={items} perItemMs={10000} onFinish={(trials, levelReached) => onFinish({ gameId, trials, levelReached })} />;
+}
+
+export const TargetHunt = (props: GameProps) => <ItemGame {...props} bank={TARGET_HUNT_ITEMS} />;
+export const MindRotate = (props: GameProps) => <ItemGame {...props} bank={MIND_ROTATE_ITEMS} />;
+export const WordConnections = (props: GameProps) => <ItemGame {...props} bank={WORD_CONNECTION_ITEMS} />;
+
 export const GAME_COMPONENTS: Record<GameId, React.ComponentType<GameProps>> = {
+  'peripheral-pulse': PeripheralPulse,
   'signal-stop': SignalStop,
   'color-clash': ColorClash,
   switchboard: Switchboard,
   'pattern-path': PatternPath,
+  'spatial-sequence': SpatialSequence,
+  'name-face': NameFace,
+  'target-hunt': TargetHunt,
+  'mind-rotate': MindRotate,
+  'word-vault': WordVault,
+  'word-connections': WordConnections,
+  'plan-ahead': PlanAhead,
   'memory-ladder': MemoryLadder,
   'word-rescue': WordRescue,
   'sequence-detective': SequenceDetective,
@@ -188,5 +250,6 @@ export const GAME_COMPONENTS: Record<GameId, React.ComponentType<GameProps>> = {
 
 const s = StyleSheet.create({
   stim: { width: 120, height: 120 },
+  pulse: { position: 'absolute', width: 34, height: 34, borderRadius: 17, backgroundColor: color.stim },
   word: { fontFamily: font.sansSemi, fontSize: 52, letterSpacing: -1.5 },
 });

@@ -30,6 +30,34 @@ export const SEQUENCE_ITEMS: Item[] = [
   { id: 's10', stem: '1 · 2 · 6 · 24 · ?', prompt: 'What comes next?', options: ['120', '96', '48', '72'], answer: '120', difficulty: 6 },
 ];
 
+export const WORD_CONNECTION_ITEMS: Item[] = [
+  { id: 'c1', prompt: 'Bird is most closely related to…', options: ['Nest', 'Truck', 'Glass', 'Clock'], answer: 'Nest', difficulty: 2 },
+  { id: 'c2', prompt: 'Thermometer is most closely related to…', options: ['Temperature', 'Distance', 'Weight', 'Direction'], answer: 'Temperature', difficulty: 3 },
+  { id: 'c3', prompt: 'Blueprint is most closely related to…', options: ['Building', 'Novel', 'Concert', 'Recipe'], answer: 'Building', difficulty: 4 },
+  { id: 'c4', prompt: 'Orbit is most closely related to…', options: ['Planet', 'Ocean', 'Forest', 'Engine'], answer: 'Planet', difficulty: 4 },
+  { id: 'c5', prompt: 'Cautious is closest in meaning to…', options: ['Prudent', 'Restless', 'Cheerful', 'Fragile'], answer: 'Prudent', difficulty: 5 },
+  { id: 'c6', prompt: 'Glove relates to hand as sock relates to…', options: ['Foot', 'Shoe', 'Wool', 'Pair'], answer: 'Foot', difficulty: 6 },
+  { id: 'c7', prompt: 'Chapter relates to book as movement relates to…', options: ['Symphony', 'Dance', 'Travel', 'Clock'], answer: 'Symphony', difficulty: 7 },
+  { id: 'c8', prompt: 'Erode is most closely related to…', options: ['Wear away', 'Build up', 'Turn over', 'Hold still'], answer: 'Wear away', difficulty: 5 },
+];
+
+export const MIND_ROTATE_ITEMS: Item[] = [
+  { id: 'r1', stem: '└  →  ┌', prompt: 'Same form rotated, or mirrored?', options: ['Same', 'Mirrored'], answer: 'Same', difficulty: 2, metadata: { angle: 90 } },
+  { id: 'r2', stem: '└  →  ┘', prompt: 'Same form rotated, or mirrored?', options: ['Same', 'Mirrored'], answer: 'Mirrored', difficulty: 3, metadata: { angle: 90 } },
+  { id: 'r3', stem: '┬  →  ┴', prompt: 'Same form rotated, or mirrored?', options: ['Same', 'Mirrored'], answer: 'Same', difficulty: 4, metadata: { angle: 180 } },
+  { id: 'r4', stem: '◢  →  ◣', prompt: 'Same form rotated, or mirrored?', options: ['Same', 'Mirrored'], answer: 'Mirrored', difficulty: 5, metadata: { angle: 90 } },
+  { id: 'r5', stem: '↱  →  ↳', prompt: 'Same form rotated, or mirrored?', options: ['Same', 'Mirrored'], answer: 'Same', difficulty: 6, metadata: { angle: 180 } },
+  { id: 'r6', stem: '◤  →  ◢', prompt: 'Same form rotated, or mirrored?', options: ['Same', 'Mirrored'], answer: 'Same', difficulty: 7, metadata: { angle: 180 } },
+];
+
+export const TARGET_HUNT_ITEMS: Item[] = [
+  { id: 'h1', stem: '↖  ↖  ↗  ↖\n↖  ↖  ↖  ↖', prompt: 'Where is ↗?', options: ['Top left', 'Top right', 'Bottom left', 'Bottom right'], answer: 'Top right', difficulty: 2, metadata: { distractors: 7 } },
+  { id: 'h2', stem: '→  →  →  →\n→  →  ←  →\n→  →  →  →', prompt: 'Where is ←?', options: ['Top', 'Middle', 'Bottom'], answer: 'Middle', difficulty: 3, metadata: { distractors: 11 } },
+  { id: 'h3', stem: '↗  ↗  ↗  ↗\n↗  ↗  ↗  ↗\n↗  ↖  ↗  ↗', prompt: 'Where is ↖?', options: ['Top', 'Middle', 'Bottom'], answer: 'Bottom', difficulty: 4, metadata: { distractors: 11 } },
+  { id: 'h4', stem: '↑  ↑  ↑  ↑  ↑\n↑  ↑  ↑  ↑  ↑\n↑  ↑  ↓  ↑  ↑\n↑  ↑  ↑  ↑  ↑', prompt: 'Where is ↓?', options: ['Top half', 'Bottom half'], answer: 'Bottom half', difficulty: 6, metadata: { distractors: 19 } },
+  { id: 'h5', stem: '↘  ↘  ↘  ↘  ↘\n↘  ↘  ↘  ↘  ↘\n↘  ↘  ↘  ↘  ↘\n↘  ↙  ↘  ↘  ↘', prompt: 'Where is ↙?', options: ['Top half', 'Bottom half'], answer: 'Bottom half', difficulty: 7, metadata: { distractors: 19 } },
+];
+
 export function pickItems(bank: Item[], count: number, aroundDifficulty: number): Item[] {
   const sorted = [...bank].sort(
     (a, b) => Math.abs(a.difficulty - aroundDifficulty) - Math.abs(b.difficulty - aroundDifficulty),

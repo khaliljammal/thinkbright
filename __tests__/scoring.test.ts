@@ -9,6 +9,7 @@ import {
   rollingMindAge,
   weakestSkill,
   strongestSkill,
+  profileConfidence,
   TrialRecord,
   GameResult,
 } from '../src/lib/scoring';
@@ -91,7 +92,7 @@ describe('scoreSkills', () => {
 
   it('leaves unmeasured skills undefined rather than guessing zero', () => {
     const skills = scoreSkills([{ gameId: 'pattern-path', trials: [hit(900)], levelReached: 5 }]);
-    expect(skills.recall).toBeDefined();
+    expect(skills.memory).toBeDefined();
     expect(skills.words).toBeUndefined();
   });
 });
@@ -105,6 +106,14 @@ describe('composite', () => {
     const focusHeavy = composite({ focus: 100, flexibility: 0 });
     const flexHeavy = composite({ focus: 0, flexibility: 100 });
     expect(focusHeavy).toBeGreaterThan(flexHeavy);
+  });
+});
+
+describe('profileConfidence', () => {
+  it('uses measured domain coverage rather than engagement', () => {
+    expect(profileConfidence({ processing: 70, focus: 72 }).level).toBe('Low');
+    expect(profileConfidence({ processing: 70, focus: 72, memory: 68, recall: 71 }).level).toBe('Building');
+    expect(profileConfidence({ processing: 70, focus: 72, memory: 68, recall: 71, words: 75, reasoning: 66, flexibility: 73 }).level).toBe('High');
   });
 });
 

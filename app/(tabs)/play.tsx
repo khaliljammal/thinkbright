@@ -76,7 +76,7 @@ export default function Play() {
 
         <Text style={[type.heading, { marginTop: 14 }]}>Today's workout</Text>
         <Text style={s.meta}>
-          5 MIN · 3 GAMES{hardest ? ` · ${GAMES[hardest.gameId].name.toUpperCase()} IS THE HARD ONE` : ''}
+          5–10 MIN · 3 GAMES{hardest ? ` · ${GAMES[hardest.gameId].name.toUpperCase()} IS THE HARD ONE` : ''}
         </Text>
 
         {lockedOut ? (

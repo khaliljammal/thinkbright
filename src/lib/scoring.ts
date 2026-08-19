@@ -9,6 +9,8 @@ export type TrialRecord = {
   correct: boolean;
   /** True where withholding was the correct response (no-go trials). */
   isNoGo?: boolean;
+  /** Task-specific raw measurements retained for analysis and future normalization. */
+  metadata?: Record<string, string | number | boolean | null>;
 };
 
 export type GameResult = {
@@ -16,6 +18,9 @@ export type GameResult = {
   trials: TrialRecord[];
   /** Highest sequence length or difficulty level reached, for span games. */
   levelReached?: number;
+  /** Only controlled assessment observations can update Cognitive Performance Age. */
+  mode?: 'assessment' | 'training';
+  metrics?: Record<string, number | null>;
 };
 
 export type SkillScores = Record<SkillKey, number>;
@@ -32,6 +37,39 @@ export function meanRt(trials: TrialRecord[]): number | null {
   const rts = trials.filter((t) => t.correct && t.rtMs !== null).map((t) => t.rtMs as number);
   if (!rts.length) return null;
   return rts.reduce((a, b) => a + b, 0) / rts.length;
+}
+
+const median = (values: number[]): number | null => {
+  if (!values.length) return null;
+  const sorted = [...values].sort((a, b) => a - b);
+  const middle = Math.floor(sorted.length / 2);
+  return sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2;
+};
+
+/** Common raw metrics retained for every game, plus task-specific metrics when available. */
+export function deriveGameMetrics(result: GameResult): Record<string, number | null> {
+  const correctTimes = result.trials
+    .filter((trial) => trial.correct && trial.rtMs !== null)
+    .map((trial) => trial.rtMs as number);
+  const average = correctTimes.length ? correctTimes.reduce((sum, value) => sum + value, 0) / correctTimes.length : null;
+  const variability = average && correctTimes.length > 1
+    ? Math.sqrt(correctTimes.reduce((sum, value) => sum + (value - average) ** 2, 0) / correctTimes.length)
+    : null;
+  const switchTimes = result.trials.filter((trial) => trial.correct && trial.metadata?.switchTrial === true && trial.rtMs !== null).map((trial) => trial.rtMs as number);
+  const repeatTimes = result.trials.filter((trial) => trial.correct && trial.metadata?.switchTrial === false && trial.rtMs !== null).map((trial) => trial.rtMs as number);
+  const switchMedian = median(switchTimes);
+  const repeatMedian = median(repeatTimes);
+
+  return {
+    accuracy: accuracy(result.trials),
+    medianRtMs: median(correctTimes),
+    rtVariabilityMs: variability,
+    missRate: result.trials.length ? result.trials.filter((trial) => trial.rtMs === null && !trial.correct).length / result.trials.length : 0,
+    falsePositiveRate: result.trials.length ? result.trials.filter((trial) => trial.isNoGo && !trial.correct).length / result.trials.length : 0,
+    difficultyReached: result.levelReached ?? null,
+    switchCostMs: switchMedian !== null && repeatMedian !== null ? switchMedian - repeatMedian : null,
+    ...result.metrics,
+  };
 }
 
 /**
@@ -64,6 +102,16 @@ export function scoreGame(result: GameResult): number {
   const acc = accuracy(result.trials);
   const con = consistency(result.trials);
 
+  if (result.gameId === 'name-face' || result.gameId === 'word-vault') {
+    return Math.round(100 * clamp(0.8 * acc + 0.2 * con, 0, 1));
+  }
+  if (result.gameId === 'plan-ahead') {
+    const efficiency = clamp(result.metrics?.planningEfficiency ?? 0, 0, 1);
+    return Math.round(100 * clamp(0.8 * efficiency + 0.2 * acc, 0, 1));
+  }
+  if (result.gameId === 'target-hunt') {
+    return Math.round(100 * clamp(0.75 * acc + 0.25 * con, 0, 1));
+  }
   if (game.engine === 'C') {
     const span = spanComponent(result.levelReached, 9);
     return Math.round(100 * clamp(0.6 * span + 0.3 * acc + 0.1 * con, 0, 1));
@@ -73,6 +121,16 @@ export function scoreGame(result: GameResult): number {
     return Math.round(100 * clamp(0.65 * acc + 0.25 * level + 0.1 * con, 0, 1));
   }
   return Math.round(100 * clamp(0.7 * acc + 0.3 * con, 0, 1));
+}
+
+/** Coverage-based confidence is deliberately separate from the performance score. */
+export function profileConfidence(scores: Partial<SkillScores>): {
+  coverage: number;
+  level: 'Low' | 'Building' | 'High';
+} {
+  const measured = SKILLS.filter((key) => scores[key] !== undefined).length;
+  const coverage = measured / SKILLS.length;
+  return { coverage, level: coverage >= 0.85 ? 'High' : coverage >= 0.5 ? 'Building' : 'Low' };
 }
 
 /** Averages every game feeding a skill; skills with no data stay null. */
